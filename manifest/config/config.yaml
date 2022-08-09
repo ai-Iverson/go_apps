@@ -15,5 +15,5 @@ database:
     stdout:  true
 
   default:
-    link:   "mysql:root:123456@tcp(127.0.0.1:3307)/app_market"
+    link:   "mysql:w1p4g7lzkq4l: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@tcp(9eo6z8dgr0s1.umy_apps-east-3.psdb.cloud:3306)/my_app"
     debug:  true
