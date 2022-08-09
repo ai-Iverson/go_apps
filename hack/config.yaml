@@ -1,0 +1,10 @@
+
+# CLI tool, only in development environment.
+# https://goframe.org/pages/viewpage.action?pageId=3673173
+gfcli:
+  gen:
+    dao:
+      - link: "mysql:root:123456@tcp(127.0.0.1:3307)/app_market"
+        tables: "application,cert,file,logger,package_json,tag,user,user_role,version"
+        descriptionTag: true
+        noModelComment: true
