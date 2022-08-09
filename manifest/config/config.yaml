@@ -15,5 +15,9 @@ database:
     stdout:  true
 
   default:
-    link:   "mysql:w1p4g7lzkq4l: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@tcp(9eo6z8dgr0s1.umy_apps-east-3.psdb.cloud:3306)/my_app"
-    debug:  true
+    host: "127.0.0.1"
+    port: "3306"
+    user: "root"
+    pass: "123456"
+    name: "my_apps"
+    type: "mysql"
