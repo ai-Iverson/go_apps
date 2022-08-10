@@ -1,24 +1,35 @@
 package utility
 
 import (
-	"github.com/gogf/gf/v2/errors/gcode"
+	"context"
 	jwt "github.com/gogf/gf-jwt/v2"
+	"github.com/gogf/gf/v2/errors/gcode"
 	"github.com/gogf/gf/v2/errors/gerror"
+	"github.com/gogf/gf/v2/frame/g"
 	"github.com/gogf/gf/v2/net/ghttp"
+	"github.com/gogf/gf/v2/util/gconv"
+	v1 "myapp/api/v1"
+	"myapp/internal/service"
 	"net/http"
 	"time"
 )
+
 var authService *jwt.GfJWTMiddleware
+
+// 权限包管理
+func Auth() *jwt.GfJWTMiddleware {
+	return authService
+}
 
 // 初始化
 func init() {
 	auth := jwt.New(&jwt.GfJWTMiddleware{
 		//用户的领域名称，必传
-		Realm: "mall",
+		Realm: "my_apps",
 		// 签名算法
 		SigningAlgorithm: "HS256",
 		// 签名密钥
-		Key: []byte("mall"),
+		Key: []byte("my_apps"),
 		// 时效
 		Timeout: time.Minute * 60 * 6,
 		// 	token过期后，可凭借旧token获取新token的刷新时间
@@ -44,6 +55,48 @@ func init() {
 	authService = auth
 }
 
+func Authenticator(ctx context.Context) (interface{}, error) {
+	var (
+		apiReq     v1.UserRegisterReq
+		serviceReq = g.RequestFromCtx(ctx)
+	)
+	if err := serviceReq.Parse(&apiReq); err != nil {
+		return "", err
+	}
+	if err := gconv.Struct(apiReq, &serviceReq); err != nil {
+		return "", err
+	}
+
+	// user {"id": 1, "username": "admin"}
+	if user := service.User().CheckUserPassword(ctx, apiReq.UserName, apiReq.PassWord); user != nil {
+		return user, nil
+	}
+
+	return nil, jwt.ErrFailedAuthentication
+}
+func Unauthorized(ctx context.Context, code int, message string) {
+	r := g.RequestFromCtx(ctx)
+	r.Response.WriteJson(g.Map{
+		"code": code,
+		"msg":  message,
+	})
+	r.ExitAll()
+}
+func PayloadFunc(data interface{}) jwt.MapClaims {
+	claims := jwt.MapClaims{}
+	params := data.(map[string]interface{})
+	if len(params) > 0 {
+		for k, v := range params {
+			claims[k] = v
+		}
+	}
+	return claims
+}
+func IdentityHandler(ctx context.Context) interface{} {
+	claims := jwt.ExtractClaims(ctx)
+	return claims[authService.IdentityKey]
+}
+
 // 权限中间件
 type middlewareService struct{}
 
@@ -53,12 +106,12 @@ func Middleware() *middlewareService {
 	return &middleware
 }
 
-//func (s *middlewareService) Auth(r *ghttp.Request) {
-//	// GfJWTMiddleware gf jwt集成的中间件
-//	// Auth是权限service中配置的gf jwt
-//	Auth().MiddlewareFunc()(r)
-//	r.Middleware.Next()
-//}
+func (s *middlewareService) Auth(r *ghttp.Request) {
+	// GfJWTMiddleware gf jwt集成的中间件
+	// Auth是权限service中配置的gf jwt
+	Auth().MiddlewareFunc()(r)
+	r.Middleware.Next()
+}
 
 type DefaultHandlerRes struct {
 	ResultCode int         `json:"resultCode"    dc:"Error code"`

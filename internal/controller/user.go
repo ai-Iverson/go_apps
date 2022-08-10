@@ -2,6 +2,7 @@ package controller
 
 import (
 	"context"
+	"fmt"
 	v1 "myapp/api/v1"
 	"myapp/internal/service"
 )
@@ -30,11 +31,12 @@ func (c *cUser) Register(ctx context.Context, req *v1.UserRegisterReq) (res *v1.
 	return &a, err
 }
 
-func (c *cUser) Login(ctx context.Context, req *v1.UserRegisterReq) (*v1.UserLoginRes,error) {
+func (c *cUser) Login(ctx context.Context, req *v1.UserLoginReq) (*v1.UserLoginRes,error) {
 	var token *v1.UserLoginRes
 	err := service.User().Login(ctx, req.UserName, req.PassWord)
 	if err != nil{
 		return nil, err
 	}
+	fmt.Println(token)
 	return token, err
 }

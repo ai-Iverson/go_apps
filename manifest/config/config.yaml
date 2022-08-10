@@ -16,9 +16,9 @@ database:
 
   default:
     host: "127.0.0.1"
-    port: "3307"
+    port: "3306"
     user: "root"
     pass: "123456"
-    name: "app_market"
+    name: "my_apps"
     type: "mysql"
     updatedAt: "updated_at"
