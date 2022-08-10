@@ -21,6 +21,7 @@ var (
 			s.Use(utility.Middleware().CustomResponse)
 			s.Group("/api/v1", func(group *ghttp.RouterGroup) {
 				group.POST("/user/register", controller.User.Register)
+				group.POST("/user/login", controller.User.Login)
 			})
 			s.Group("/", func(group *ghttp.RouterGroup) {
 				group.Middleware(ghttp.MiddlewareHandlerResponse)

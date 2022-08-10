@@ -2,10 +2,11 @@ package service
 
 import (
 	"context"
+	"fmt"
 	"github.com/gogf/gf/v2/errors/gerror"
 	"github.com/gogf/gf/v2/frame/g"
-	"golang.org/x/crypto/bcrypt"
 	v1 "myapp/api/v1"
+	"myapp/internal/model/entity"
 )
 
 type (
@@ -40,11 +41,11 @@ func (s *sUser) ValidRegist(ctx context.Context, username string, mail string) e
 }
 
 func (s *sUser) AddUserToDb(ctx context.Context, UserName, Email, PassWord string) (*v1.UserRegisterRes, error) {
-	encryptPassword, _ := bcrypt.GenerateFromPassword([]byte(PassWord), 10)
+	//encryptPassword, _ := bcrypt.GenerateFromPassword([]byte(PassWord), 10)
 	_, err := g.Model("User").Data(g.Map{
 		"username":   UserName,
 		"email":      Email,
-		"password":   encryptPassword,
+		"password":   PassWord,
 		"is_deleted": 0,
 		"active":     1,
 	}).Insert()
@@ -53,24 +54,30 @@ func (s *sUser) AddUserToDb(ctx context.Context, UserName, Email, PassWord strin
 	}
 	return nil, err
 }
-func (s *sUser) CheckUserPassword(ctx context.Context, username string, password string) error {
-	record, err := g.Model("user").Where(g.Map{
+func (s *sUser) CheckUserPassword(ctx context.Context, username string, password string) (user *entity.User) {
+	var u  *entity.User
+	err := g.Model("user").Where(g.Map{
+		"username":   username,
+		"password":   password,
+		"is_deleted": 0,
+	}).Scan(u)
+	if err != nil {
+		return nil
+	}
+	//err1 := bcrypt.CompareHashAndPassword([]byte(record["password"].String()), []byte(password))
+	return u
+}
+
+func (s *sUser) Login(ctx context.Context, username string, password string) (err error) {
+	record,err := g.Model("user").Where(g.Map{
 		"username":   username,
 		"password":   password,
 		"is_deleted": 0,
 	}).One()
-	if err != nil && g.IsNil(record) {
+	fmt.Print(record)
+	if err != nil && g.IsNil(record){
 		return err
 	}
-	err1 := bcrypt.CompareHashAndPassword([]byte(record["password"].String()), []byte(password))
-	if err1 != nil {
-		return err1
-	}
-	return nil
-}
-
-func (s *sUser) Login(ctx context.Context, username string, password string) (err error) {
-	err =s.CheckUserPassword(ctx,username,password)
 	if err != nil{
 		return err
 	}
