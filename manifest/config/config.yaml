@@ -21,3 +21,4 @@ database:
     pass: "123456"
     name: "app_market"
     type: "mysql"
+    updatedAt: "updated_at"
