@@ -68,3 +68,11 @@ func (s *sUser) CheckUserPassword(ctx context.Context, username string, password
 	}
 	return nil
 }
+
+func (s *sUser) Login(ctx context.Context, username string, password string) (err error) {
+	err =s.CheckUserPassword(ctx,username,password)
+	if err != nil{
+		return err
+	}
+	return nil
+}

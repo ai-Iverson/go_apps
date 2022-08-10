@@ -15,3 +15,11 @@ type UserRegisterReq struct {
 type UserRegisterRes struct {
 	Msg string
 }
+
+type UserLoginReq struct {
+	g.Meta   `path:"user/login" tags:"登录" method:"post" summary:"用户登录"`
+	UserName string `json:"username"`
+	PassWord string `json:"password"`
+}
+
+type UserLoginRes string
