@@ -2,10 +2,48 @@ package utility
 
 import (
 	"github.com/gogf/gf/v2/errors/gcode"
+	jwt "github.com/gogf/gf-jwt/v2"
 	"github.com/gogf/gf/v2/errors/gerror"
 	"github.com/gogf/gf/v2/net/ghttp"
 	"net/http"
+	"time"
 )
+var authService *jwt.GfJWTMiddleware
+
+// 初始化
+func init() {
+	auth := jwt.New(&jwt.GfJWTMiddleware{
+		//用户的领域名称，必传
+		Realm: "mall",
+		// 签名算法
+		SigningAlgorithm: "HS256",
+		// 签名密钥
+		Key: []byte("mall"),
+		// 时效
+		Timeout: time.Minute * 60 * 6,
+		// 	token过期后，可凭借旧token获取新token的刷新时间
+		MaxRefresh: time.Minute * 5,
+		// 身份验证的key值
+		IdentityKey: "userId",
+		//token检索模式，用于提取token-> Authorization
+		// TokenLookup: "header: Authorization, query: token, cookie: jwt",
+		TokenLookup: "header: token",
+		// token在请求头时的名称，默认值为Bearer.客户端在header中传入"Authorization":"token xxxxxx"
+		TokenHeadName: "",
+		TimeFunc:      time.Now,
+		// 用户标识 map  私有属性
+		// 根据登录信息对用户进行身份验证的回调函数
+		Authenticator: Authenticator,
+		// 处理不进行授权的逻辑
+		Unauthorized: Unauthorized,
+		//登录期间的设置私有载荷的函数，默认设置Authenticator函数回调的所有内容
+		PayloadFunc: PayloadFunc,
+		// 解析并设置用户身份信息，并设置身份信息至每次请求中
+		IdentityHandler: IdentityHandler,
+	})
+	authService = auth
+}
+
 // 权限中间件
 type middlewareService struct{}
 

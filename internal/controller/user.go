@@ -29,3 +29,12 @@ func (c *cUser) Register(ctx context.Context, req *v1.UserRegisterReq) (res *v1.
 	a.Msg = "注册成功"
 	return &a, err
 }
+
+func (c *cUser) Login(ctx context.Context, req *v1.UserRegisterReq) (*v1.UserLoginRes,error) {
+	var token *v1.UserLoginRes
+	err := service.User().Login(ctx, req.UserName, req.PassWord)
+	if err != nil{
+		return nil, err
+	}
+	return token, err
+}
