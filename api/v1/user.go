@@ -7,7 +7,7 @@ import "github.com/gogf/gf/v2/frame/g"
 */
 type UserRegisterReq struct {
 	g.Meta   `path:"user/register" tags:"注册" method:"post" summary:"用户注册"`
-	UserName string `json:"username" v:"required|length:4,30#请输入账号|账号长度为:min到:max位"`
+	UserName string `json:"username" v:"required|length:4,30#请输入账号|账号长度为:4到:30位"`
 	PassWord string `json:"password" v:"required|length:6,30#请输入密码|密码长度不够"`
 	Email    string `json:"email" v:"email"`
 }
