@@ -2,11 +2,11 @@ package service
 
 import (
 	"context"
-	"fmt"
+	"errors"
+	"github.com/gogf/gf/v2/crypto/gmd5"
 	"github.com/gogf/gf/v2/errors/gerror"
 	"github.com/gogf/gf/v2/frame/g"
 	v1 "myapp/api/v1"
-	"myapp/internal/model/entity"
 )
 
 type (
@@ -41,11 +41,14 @@ func (s *sUser) ValidRegist(ctx context.Context, username string, mail string) e
 }
 
 func (s *sUser) AddUserToDb(ctx context.Context, UserName, Email, PassWord string) (*v1.UserRegisterRes, error) {
-	//encryptPassword, _ := bcrypt.GenerateFromPassword([]byte(PassWord), 10)
+	encryptPassword, errpass := gmd5.Encrypt(PassWord + "qwer")
+	if errpass != nil {
+		return nil, errors.New("服务器异常")
+	}
 	_, err := g.Model("User").Data(g.Map{
 		"username":   UserName,
 		"email":      Email,
-		"password":   PassWord,
+		"password":   encryptPassword,
 		"is_deleted": 0,
 		"active":     1,
 	}).Insert()
@@ -54,31 +57,39 @@ func (s *sUser) AddUserToDb(ctx context.Context, UserName, Email, PassWord strin
 	}
 	return nil, err
 }
-func (s *sUser) CheckUserPassword(ctx context.Context, username string, password string) (user *entity.User) {
-	var u  *entity.User
-	err := g.Model("user").Where(g.Map{
-		"username":   username,
-		"password":   password,
-		"is_deleted": 0,
-	}).Scan(u)
-	if err != nil {
+func (s *sUser) CheckUserPassword(ctx context.Context, username string, password string) map[string]interface{} {
+	encryptPassword, errpass := gmd5.Encrypt(password + "qwer")
+	if errpass != nil {
 		return nil
 	}
-	//err1 := bcrypt.CompareHashAndPassword([]byte(record["password"].String()), []byte(password))
-	return u
+	user,usererr := g.Model("user").Where(g.Map{
+		"username":   username,
+		"password":   encryptPassword,
+		"is_deleted": 0,
+	}).One()
+	if usererr != nil {
+		return nil
+	}
+	return g.Map{
+		"id":user["id"],
+		"username":user["username"],
+	}
 }
 
 func (s *sUser) Login(ctx context.Context, username string, password string) (err error) {
-	record,err := g.Model("user").Where(g.Map{
+	encryptPassword, errpass := gmd5.Encrypt(password + "qwer")
+	if errpass != nil {
+		return errors.New("服务器异常")
+	}
+	record, err := g.Model("user").Where(g.Map{
 		"username":   username,
-		"password":   password,
+		"password":   encryptPassword,
 		"is_deleted": 0,
 	}).One()
-	fmt.Print(record)
-	if err != nil && g.IsNil(record){
+	if err != nil && g.IsNil(record) {
 		return err
 	}
-	if err != nil{
+	if err != nil {
 		return err
 	}
 	return nil

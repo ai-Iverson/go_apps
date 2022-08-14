@@ -1,6 +1,9 @@
 package v1
 
-import "github.com/gogf/gf/v2/frame/g"
+import (
+	"github.com/gogf/gf/v2/frame/g"
+	"time"
+)
 
 /*
 用户注册
@@ -22,4 +25,7 @@ type UserLoginReq struct {
 	PassWord string `json:"password"`
 }
 
-type UserLoginRes string
+type UserLoginRes struct {
+	Token string `json:"token"`
+	Expire time.Time `json:"expire"`
+}
