@@ -2,6 +2,7 @@ package utility
 
 import (
 	"context"
+	"fmt"
 	jwt "github.com/gogf/gf-jwt/v2"
 	"github.com/gogf/gf/v2/errors/gcode"
 	"github.com/gogf/gf/v2/errors/gerror"
@@ -35,7 +36,7 @@ func init() {
 		// 	token过期后，可凭借旧token获取新token的刷新时间
 		MaxRefresh: time.Minute * 5,
 		// 身份验证的key值
-		IdentityKey: "userId",
+		IdentityKey: "id",
 		//token检索模式，用于提取token-> Authorization
 		// TokenLookup: "header: Authorization, query: token, cookie: jwt",
 		TokenLookup: "header: token",
@@ -54,7 +55,31 @@ func init() {
 	})
 	authService = auth
 }
+func PayloadFunc(data interface{}) jwt.MapClaims {
+	claims := jwt.MapClaims{}
+	params := data.(map[string]interface{})
+	if len(params) > 0 {
+		for k, v := range params {
+			claims[k] = v
+		}
+	}
+	fmt.Println(claims)
+	return claims
+}
+func IdentityHandler(ctx context.Context) interface{} {
+	claims := jwt.ExtractClaims(ctx)
+	fmt.Println(claims[authService.IdentityKey])
+	return claims[authService.IdentityKey]
+}
 
+func Unauthorized(ctx context.Context, code int, message string) {
+	r := g.RequestFromCtx(ctx)
+	r.Response.WriteJson(g.Map{
+		"code": code,
+		"msg":  message,
+	})
+	r.ExitAll()
+}
 func Authenticator(ctx context.Context) (interface{}, error) {
 	var (
 		apiReq     v1.UserRegisterReq
@@ -68,33 +93,11 @@ func Authenticator(ctx context.Context) (interface{}, error) {
 	}
 
 	// user {"id": 1, "username": "admin"}
-	if user := service.User().CheckUserPassword(ctx, apiReq.UserName, apiReq.PassWord); user != nil {
+	user := service.User().CheckUserPassword(ctx, apiReq.UserName, apiReq.PassWord)
+	if user != nil {
 		return user, nil
 	}
-
 	return nil, jwt.ErrFailedAuthentication
-}
-func Unauthorized(ctx context.Context, code int, message string) {
-	r := g.RequestFromCtx(ctx)
-	r.Response.WriteJson(g.Map{
-		"code": code,
-		"msg":  message,
-	})
-	r.ExitAll()
-}
-func PayloadFunc(data interface{}) jwt.MapClaims {
-	claims := jwt.MapClaims{}
-	params := data.(map[string]interface{})
-	if len(params) > 0 {
-		for k, v := range params {
-			claims[k] = v
-		}
-	}
-	return claims
-}
-func IdentityHandler(ctx context.Context) interface{} {
-	claims := jwt.ExtractClaims(ctx)
-	return claims[authService.IdentityKey]
 }
 
 // 权限中间件
