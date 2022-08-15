@@ -32,16 +32,16 @@ func init() {
 		// 签名密钥
 		Key: []byte("my_apps"),
 		// 时效
-		Timeout: time.Minute * 60 * 6,
+		Timeout: time.Minute * 5,
 		// 	token过期后，可凭借旧token获取新token的刷新时间
 		MaxRefresh: time.Minute * 5,
 		// 身份验证的key值
 		IdentityKey: "id",
 		//token检索模式，用于提取token-> Authorization
 		// TokenLookup: "header: Authorization, query: token, cookie: jwt",
-		TokenLookup: "header: token",
+		TokenLookup: "header: Authorization, query: token, cookie: jwt",
 		// token在请求头时的名称，默认值为Bearer.客户端在header中传入"Authorization":"token xxxxxx"
-		TokenHeadName: "",
+		TokenHeadName: "Bearer",
 		TimeFunc:      time.Now,
 		// 用户标识 map  私有属性
 		// 根据登录信息对用户进行身份验证的回调函数
