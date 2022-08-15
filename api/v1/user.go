@@ -47,3 +47,13 @@ type UserLogoutRes struct {
 	Token  string    `json:"token"`
 	Expire time.Time `json:"expire"`
 }
+
+type UserInfoReq struct {
+	g.Meta `path:"user/getuserinfo" tags:"获取用户信息" method:"get" summary:"获取用户信息"`
+}
+
+type UserInfoRes struct {
+	Id        int    `json:"id"`
+	IdentiKey string `json:"identidy_key"`
+	Payload   string `json:"payload"`
+}

@@ -2,6 +2,8 @@ package controller
 
 import (
 	"context"
+	"fmt"
+	"github.com/gogf/gf/v2/util/gconv"
 	v1 "myapp/api/v1"
 	"myapp/internal/service"
 	"myapp/utility"
@@ -49,4 +51,13 @@ func (c *cUser) RefreshToken(ctx context.Context, req *v1.UserRefreshTokenReq) (
 func (c *cUser) Logout(ctx context.Context, req *v1.UserLogoutReq) (res *v1.UserLogoutRes, err error) {
 	utility.Auth().LogoutHandler(ctx)
 	return
+}
+
+func (c *cUser) UserInfo(ctx context.Context, req *v1.UserInfoReq) (res *v1.UserInfoRes, err error) {
+	fmt.Println(gconv.Int(utility.Auth().GetIdentity(ctx)))
+	return &v1.UserInfoRes{
+		Id:        gconv.Int(utility.Auth().GetIdentity(ctx)),
+		IdentiKey: utility.Auth().IdentityKey,
+		Payload:   utility.Auth().GetPayload(ctx),
+	}, nil
 }
