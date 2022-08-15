@@ -63,7 +63,6 @@ func PayloadFunc(data interface{}) jwt.MapClaims {
 			claims[k] = v
 		}
 	}
-	fmt.Println(claims)
 	return claims
 }
 func IdentityHandler(ctx context.Context) interface{} {
