@@ -26,6 +26,24 @@ type UserLoginReq struct {
 }
 
 type UserLoginRes struct {
-	Token string `json:"token"`
+	Token  string    `json:"token"`
+	Expire time.Time `json:"expire"`
+}
+
+type UserRefreshTokenReq struct {
+	g.Meta `path:"user/refresh_token" tags:"刷新Token" method:"post" summary:"刷新token"`
+}
+
+type UserRefreshTokenRes struct {
+	Token  string    `json:"token"`
+	Expire time.Time `json:"expire"`
+}
+
+type UserLogoutReq struct {
+	g.Meta `path:"user/logout" tags:"登出" method:"post" summary:"登出"`
+}
+
+type UserLogoutRes struct {
+	Token  string    `json:"token"`
 	Expire time.Time `json:"expire"`
 }

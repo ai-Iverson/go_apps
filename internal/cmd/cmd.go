@@ -18,10 +18,12 @@ var (
 		Brief: "start http server",
 		Func: func(ctx context.Context, parser *gcmd.Parser) (err error) {
 			s := g.Server()
-			s.Use(utility.Middleware().CustomResponse,ghttp.MiddlewareCORS,ghttp.MiddlewareCORS)
+			s.Use(utility.Middleware().CustomResponse, ghttp.MiddlewareCORS, ghttp.MiddlewareCORS)
 			s.Group("/api/v1", func(group *ghttp.RouterGroup) {
 				group.POST("/user/register", controller.User.Register)
 				group.POST("/user/login", controller.User.Login)
+				group.POST("/user/user/refresh_token", controller.User.RefreshToken)
+				group.POST("/user/user/logout", controller.User.Logout)
 			})
 			s.Group("/", func(group *ghttp.RouterGroup) {
 				group.Middleware(ghttp.MiddlewareHandlerResponse)
