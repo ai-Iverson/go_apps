@@ -29,6 +29,7 @@ var (
 					controller.Hello,
 				)
 			})
+			_ = controller.Schedules.Initialize()
 			s.Run()
 			return nil
 		},
