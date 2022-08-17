@@ -30,6 +30,7 @@ var (
 				group.GET("/user/getuserinfo", controller.User.UserInfo)
 
 			})
+			_ = controller.Schedules.Initialize()
 			s.Run()
 			return nil
 		},
